@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
+# Given a character, F/L or B/R, and a range, return the upper or lower half of that range based on the character.
 def frontback(char, lower, upper):
     midpoint = round((lower + upper) / 2)
-    #print("midpoint {}".format(midpoint))
     if(char == 'F' or char == "L"):
         #Return lower half
         return (lower, (midpoint - 1))
@@ -13,35 +13,41 @@ def frontback(char, lower, upper):
         print("INVALID CHAR: {}".format(char))
         return -1
 
+# Compute seat id for a given line
 def seatid(line):
+    # Check line length first
     if(len(line) != 10):
-        print("Problem with line: {}".format(line))
+        #print("Problem with line: {}".format(line))
+        return 0
+    # Split lines into characters that specify rows and columns
     rowdirs = line[:7]
     columndirs = line[-3:]
+    # Set min and max values for rows and columns
     row = 0
     column = 0
     rowhigh = 127
     rowlow = 0
     columnlow = 0
     columnhigh = 7
+    # Iterate through row characters to determine row
     for char in rowdirs[:6]:
         (rowlow, rowhigh) = frontback(char, rowlow, rowhigh)
-        #print("{}-{}".format(rowlow, rowhigh))
+    # On last character, set row to either the lower or upper bound.
+    # Lower and upper bound should differ by 1 at this point.
     if(rowdirs[6] == "F"):
         row = rowlow
-        #print("row {}".format(rowlow))
     else:
         row = rowhigh
-        #print("row {}".format(rowhigh))
+
+    # Iterate through column characters to determine column
     for char in columndirs:
         (columnlow, columnhigh) = frontback(char, columnlow, columnhigh)
-        #print("{}-{}".format(columnlow, columnhigh))
     if(columndirs[2] == "L"):
         column = columnlow
-        #print("column {}".format(columnlow))
     else:
         column = columnhigh
-        #print("column {}".format(columnhigh))
+
+    # After row and column have been determined, calculate seat id, and return
     seatid = (row * 8) + column
     return seatid
 
@@ -49,10 +55,9 @@ def seatid(line):
 def part1(lines):
     seatidmax = 0
     for line in lines:
-        #print(len(line))
-        #print(line)
+        # Make sure lines are the correct length before attempting to compute seat id
         if(len(line) != 10):
-            print("Problem with line: {}".format(line))
+            #print("Problem with line: {}".format(line))
             continue
         rowdirs = line[:7]
         columndirs = line[-3:]
@@ -64,64 +69,47 @@ def part1(lines):
         columnhigh = 7
         for char in rowdirs[:6]:
             (rowlow, rowhigh) = frontback(char, rowlow, rowhigh)
-            #print("{}-{}".format(rowlow, rowhigh))
         if(rowdirs[6] == "F"):
             row = rowlow
-            #print("row {}".format(rowlow))
         else:
             row = rowhigh
-            #print("row {}".format(rowhigh))
         for char in columndirs:
             (columnlow, columnhigh) = frontback(char, columnlow, columnhigh)
-            #print("{}-{}".format(columnlow, columnhigh))
         if(columndirs[2] == "L"):
             column = columnlow
-            #print("column {}".format(columnlow))
         else:
             column = columnhigh
-            #print("column {}".format(columnhigh))
         seatid = (row * 8) + column
         if(seatid > seatidmax):
             seatidmax = seatid
     return seatidmax
 
+# This method for part 2 calculates all possible seat id values, and removes seatids that are found in the provided list
+# The problem with this approach is that invalid seat id values are still included at the end of the method
+# Printing all remaining seat id values, and manually adjusting the row range provided enough information to submit the correct answer for part 2.
 def part2(lines):
     seatids = []
     for row in range(1,119):
         for column in range(0,8):
-            #print("row: {} column: {}".format(row, column))
             seat = (row * 8) + column
             seatids.append(seat)
-    #seatstaken = {}
-    #for seat in seatids:
-    #    seatstaken[seat] = False
-    #print(seatstaken)
     for line in lines:
         if line == "":
             continue
         seat = seatid(line)
-        #print(seat)
-        #print(seatstaken[seat])
         if(seat in seatids):
             seatids.remove(seat)
         else:
             print("Missing SeatID: {}".format(seat))
-        #if(seat in seatstaken.keys()):
-        #    seatstaken[seat] = True
-        #else:
-        #    print(seat)
     print(seatids)
-    #for seat in seatstaken:
-    #    print(seat.value)
-    #    if(seat.value == False):
-    #        print(seat.value)
 
+# This is a better way to do part 2, and actually returns the correct seat without manual adjustment of the range
 def alternatePart2(lines):
     # Compute seat id values for all seats in input file
     seatids = []
     for line in lines:
         if(len(line) != 10):
-            print("Problem with line: {}".format(line))
+            #print("Problem with line: {}".format(line))
             continue
         else:
             seatids.append(seatid(line))
@@ -138,15 +126,11 @@ def alternatePart2(lines):
                 continue
             else:
                 # If seat id is missing, this is our ticket
-                print("seat: {}".format(seat + 1))
+                #print("seat: {}".format(seat + 1))
                 return (seat + 1)
 
 with open("input", "r") as fh:
     lines = fh.read().split("\n")
-    #print(lines)
-    #print(len(lines))
     print("SeatID Max: {}".format(part1(lines)))
-    part2(lines)
-    alternatePart2(lines)
-    #print("Part 1: {}".format(part1(lines)))
-    #print("Part 2: {}".format(part2(lines)))
+    #part2(lines)
+    print("Part 2: {}".format(alternatePart2(lines)))
