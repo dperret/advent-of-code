@@ -116,11 +116,37 @@ def part2(lines):
     #    if(seat.value == False):
     #        print(seat.value)
 
+def alternatePart2(lines):
+    # Compute seat id values for all seats in input file
+    seatids = []
+    for line in lines:
+        if(len(line) != 10):
+            print("Problem with line: {}".format(line))
+            continue
+        else:
+            seatids.append(seatid(line))
+    # Sort list of seat ids
+    seatids.sort()
+    # Use min and max seat id values as bounds to avoid invalid seat ids at beginning and end
+    start = min(seatids)
+    end = max(seatids)
+    for seat in seatids:
+        if(seat > start and seat < end):
+            index = seatids.index(seat)
+            # Check to see if adjacent seat ids are in list
+            if(seatids[index - 1] == (seat - 1) and seatids[index + 1] == seat + 1):
+                continue
+            else:
+                # If seat id is missing, this is our ticket
+                print("seat: {}".format(seat + 1))
+                return (seat + 1)
+
 with open("input", "r") as fh:
     lines = fh.read().split("\n")
     #print(lines)
     #print(len(lines))
     print("SeatID Max: {}".format(part1(lines)))
     part2(lines)
+    alternatePart2(lines)
     #print("Part 1: {}".format(part1(lines)))
     #print("Part 2: {}".format(part2(lines)))
