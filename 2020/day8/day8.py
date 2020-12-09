@@ -3,34 +3,36 @@ import statistics
 
 
 def processInstruction(index, accumulator, line, modifyInstruction):
-    if(line == ""):
+    if line == "":
         return (index, accumulator)
-    parts = line.split(' ')
+    parts = line.split(" ")
     instruction = parts[0]
     value = int(parts[1])
-    if(index == modifyInstruction):
-        if(instruction == "jmp"):
+    if index == modifyInstruction:
+        if instruction == "jmp":
             instruction = "nop"
-        elif (instruction == "nop"):
+        elif instruction == "nop":
             instruction = "jmp"
-    if(instruction == "acc"):
+    if instruction == "acc":
         return (index + 1, accumulator + value)
-    elif(instruction == "jmp"):
+    elif instruction == "jmp":
         return (index + value, accumulator)
-    elif(instruction == "nop"):
+    elif instruction == "nop":
         return (index + 1, accumulator)
+
 
 def part1(lines):
     i = 0
     accumulator = 0
     linesExecuted = []
     while i < len(lines):
-        if(i in linesExecuted):
+        if i in linesExecuted:
             print("Duplicate instruction: {}".format(i))
             return accumulator
         linesExecuted.append(i)
         i, accumulator = processInstruction(i, accumulator, lines[i], -1)
     return accumulator
+
 
 def part2(lines, modifyInstruction):
     i = 0
@@ -39,9 +41,9 @@ def part2(lines, modifyInstruction):
     counter = 0
     duplicateJumpsExecuted = []
     while i < len(lines):
-        if(counter > 10000):
+        if counter > 10000:
             return -1
-        #if(i in linesExecuted):
+        # if(i in linesExecuted):
         #    # print("Duplicate instruction: {}: {}".format(i, lines[i]))
         #    if(lines[i][:5] == "jmp -"):
         #        duplicateJumpsExecuted.append(i)
@@ -55,30 +57,31 @@ def part2(lines, modifyInstruction):
         counter += 1
         currentInstruction = i
         i, accumulator = processInstruction(i, accumulator, lines[i], modifyInstruction)
-        if(i == currentInstruction):
+        if i == currentInstruction:
             break
     print("Finished! i: {} accumulator: {}".format(i, accumulator))
     return accumulator
 
+
 def identifyCandidates(lines):
     candidates = []
-    for i in range(1,len(lines)-1):
+    for i in range(1, len(lines) - 1):
         instruction = lines[i][:3]
-        previousInstruction = lines[i-1][:3]
-        nextInstruction = lines[i+1][:3]
+        previousInstruction = lines[i - 1][:3]
+        nextInstruction = lines[i + 1][:3]
         if instruction == "acc":
             continue
         elif instruction == "jmp":
             candidates.append(i)
-            #if nextInstruction == "jmp":
+            # if nextInstruction == "jmp":
             #    continue
-            #else:
+            # else:
             #    candidates.append(i)
         elif instruction == "nop":
             candidates.append(i)
-            #if int(lines[i][4:]) >= 0:
+            # if int(lines[i][4:]) >= 0:
             #    candidates.append(i)
-    #for item in changeInstructions:
+    # for item in changeInstructions:
     #    candidates.remove(item)
     return candidates
 
@@ -86,11 +89,11 @@ def identifyCandidates(lines):
 with open("input", "r") as fh:
     lines = fh.read().split("\n")
     changeInstructions = identifyCandidates(lines)
-    #changeInstructions = range(0,623)
-    #changeInstructions = [298]
+    # changeInstructions = range(0,623)
+    # changeInstructions = [298]
     for modifyInstruction in changeInstructions:
         accumulator = part2(lines, modifyInstruction)
-        if(accumulator != -1):
+        if accumulator != -1:
             print("modifyInstruction: {}".format(modifyInstruction))
             print("Part 2: {}".format(accumulator))
             exit()
